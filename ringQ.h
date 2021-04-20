@@ -8,7 +8,7 @@
 struct qObj_t
 {
 	uint8_t *ptr; //point current data pointer 
-	uint8_t *nextPtr; //keep track of the next buffer pointer starting
+	uint8_t *nextPtr; //keep track of the next buffer pointer 
 	uint16_t len;  //data length of current pointer 
 }
 
