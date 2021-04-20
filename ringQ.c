@@ -49,12 +49,18 @@ bool  ramqPush(struct ramq_t *me, void *dataPtr, uint16_t len)
 		}
 		
 
+		// //initiate first tail nextptr
+		// if(me -> _head.ptr == _baseAddr)
+		// {
+		// 	me -> _tail.nextPtr = nextHead;
+		// }
 
 		me -> _head.len = len - sizeof(qObj_t);
 		me -> _head.nextPtr = nextHead;
 		
 		uint8_t *dataPtr = me -> _head.ptr + sizeof(struct qObj_t);
 		memcpy(dataPtr,dataPtr,me -> _head.len);
+
 		//increment to next head
 		me -> _head.ptr = nextHead;
 
@@ -69,9 +75,26 @@ struct qObj_t *ramqPop(struct ramq_t *me)
 {
 	if(me -> _qState == RUNNING)
 	{
-		qObj_t *currentTail= &_tail;
+		struct qObj_t *currentTailObj= &(me -> _tail);
+		uint8_t *nextTailPtr = me -> _tail.nextPtr;
 
-		return &_tail;
+		//reset logic for pointer. next tail will be
+		// automically point in posh operation
+		if(nextTailPtr == _baseAddr)
+		{
+			_leadingHead = true;
+		}
 
+		//check data availability
+		if(_leadingHead)
+		{
+			if(nextTail >= me -> _head.ptr)
+			{
+				me -> _qState = NO_DATA;
+			}
+		}
+
+		return currentTailObj;
 	}
+	return NULL;
 }
