@@ -13,6 +13,11 @@ struct ramq_t *ramqNew(void *baseAddr, uint32_t len)
 		me -> _len = len;
 		me -> _endAddr = (uint8_t*)baseAddr + len;
 
+		SerialPrint("[RingQ] Starting address: ");
+		SerialPrintlnU32(me -> _baseAddr);
+		SerialPrint("[RingQ] Ending address: ");
+		SerialPrintlnU32(me -> _endAddr);
+
 		ramqReset(me);
 	}
 	return me;
@@ -25,29 +30,56 @@ bool  ramqPush(struct ramq_t *me, void *dataPtr, uint16_t len)
 		len += sizeof( struct qObj_t);
 		uint8_t *nextHead;
 
+		
+		nextHead = me -> _head.nextPtr + len; //update data end
+
 		//reset logic for pointer
 		if(nextHead > me -> _endAddr)
 		{
-			me -> _head.ptr = me -> _baseAddr;
+			// me -> _head.nextPtr = me -> _baseAddr;
 			// me -> _head.nextPtr =  nextHead;
-			me -> _leadingHead = false;
-		}else
-		{
-			me -> _head.ptr = me -> _head.nextPtr;
+			nextHead = me -> _baseAddr;
+			if(nextHead <= me -> _tail.nextPtr)
+			{
+				me -> _leadingHead = false;
+			}
+			
 		}
-
-		nextHead = me -> _head.ptr + len; //update data end
+		
 
 		//determine lock conditions
 		if(me -> _leadingHead == false)
 		{
-			if(nextHead >= me -> _tail.ptr)
+			if(nextHead >= me -> _tail.nextPtr)
 			{
-				//need to reset of cannot save data 
+				//need to reset of cannot save data
 				me -> _isLock = true;
+				SerialPrintln("[RingQ_PUSH] is Lockedd");
+				return false;
+			}else if((nextHead == me -> _baseAddr) && ((nextHead+len) >= me -> _tail.nextPtr))
+			{
+				me -> _isLock = true;
+				SerialPrintln("[RingQ_PUSH] is Lockeddd");
 				return false;
 			}
+
+			if(nextHead == me -> _baseAddr)
+			{
+				bool lastBuffPtr = (me -> _tail.nextPtr == me -> _head.nextPtr);
+				me -> _head.nextPtr =  nextHead;
+				memcpy(me -> _head.ptr, &(me ->_head),sizeof(struct qObj_t));
+
+				if(lastBuffPtr)
+				{
+					memcpy(&(me -> _tail), me -> _tail.ptr, sizeof(struct qObj_t));
+					me -> _leadingHead = true;	
+				}
+				
+			}
+			
 		}
+
+		me -> _head.ptr = me -> _head.nextPtr;
 		
 
 		// //initiate first tail nextptr
@@ -56,23 +88,38 @@ bool  ramqPush(struct ramq_t *me, void *dataPtr, uint16_t len)
 		// 	me -> _tail.nextPtr = nextHead;
 		// }
 
+		me -> _head.nextPtr = me -> _head.ptr + len;
+
 		me -> _head.len = len - sizeof(struct qObj_t);
-		me -> _head.nextPtr = nextHead;
+		// me -> _head.nextPtr = nextHead;
+
+		
 
 		memcpy(me -> _head.ptr, &(me ->_head),sizeof(struct qObj_t));
 		
 		uint8_t *dataPtrHead = me -> _head.ptr + sizeof(struct qObj_t);
+
+		SerialPrint("[RingQ_PUSH] Write address: ");
+		SerialPrintU32(me -> _head.ptr);
+		SerialPrint(" Data address: ");
+		SerialPrintU32(dataPtrHead);
+		SerialPrint(" Next Head address: ");
+		SerialPrintlnU32(me -> _head.nextPtr);
+
 		memcpy(dataPtrHead,dataPtr,me -> _head.len);
 
 		//increment to next head
 		// me -> _head.ptr = nextHead;
-		if( me -> _tail.ptr == me -> _tail.nextPtr)
-		{
-			memcpy(&(me -> _tail) , &(me -> _head), sizeof(struct qObj_t));
-		}
+		// if( me -> _tail.ptr == me -> _tail.nextPtr)
+		// {
+		// 	memcpy(&(me -> _tail) , &(me -> _head), sizeof(struct qObj_t));
+		// }
 
 		me -> _qState  = RUNNING;
 		return true;
+	}else
+	{
+		SerialPrintln("[RingQ_PUSH] is Locked");
 	}
 	return false;
 	
@@ -83,8 +130,19 @@ struct qObj_t *ramqPop(struct ramq_t *me)
 {
 	if(me -> _qState == RUNNING)
 	{
-		struct qObj_t *currentTailObj= &(me -> _tail);
+
+		memcpy(&(me -> _tail), me -> _tail.nextPtr, sizeof(struct qObj_t));	
+		struct qObj_t *currentTailObj= (struct qObj_t *)(me -> _tail.ptr);
 		uint8_t *nextTailPtr = me -> _tail.nextPtr;
+
+		SerialPrint("[RingQ_POP] Read address: ");
+		SerialPrintU32(me -> _tail.ptr);
+		SerialPrint(" Next Tail address: ");
+		SerialPrintlnU32(me -> _tail.nextPtr);
+
+		// memcpy(&(me -> _tail), me -> _tail.nextPtr, sizeof(struct qObj_t));	
+
+		
 
 		
 
@@ -93,16 +151,19 @@ struct qObj_t *ramqPop(struct ramq_t *me)
 
 		if(nextTailPtr != me -> _head.nextPtr)
 		{
-			memcpy(&(me -> _tail), me -> _tail.nextPtr, sizeof(struct qObj_t));
+			
 			if(nextTailPtr < me -> _head.nextPtr)
 			{
 				me ->_leadingHead = true;	
 			}
 			
+			
 		}else{
+			// me -> _isLock = false;
 			me -> _qState = NO_DATA;
-			me -> _leadingHead = false;
+			me -> _leadingHead = true;
 		}
+		me -> _isLock = false;
 
 		//check data availability
 		// if(_leadingHead)
@@ -115,6 +176,15 @@ struct qObj_t *ramqPop(struct ramq_t *me)
 
 		return currentTailObj;
 	}
+	else if(me -> _qState == NO_DATA)
+	{
+		SerialPrintln("[RingQ_POP] NO_DATA available to read.");
+	}
+	else if(me -> _qState == RESET)
+	{
+		SerialPrintln("[RingQ_POP] RESET conditions.");
+	}
+
 	return NULL;
 }
 

@@ -3,6 +3,7 @@
 #define _RAMQ_PRO_H_
 
 #include <Arduino.h>
+#include "Serial.h"
 
 #ifdef __cplusplus
 extern "C" {
