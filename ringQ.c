@@ -4,9 +4,11 @@
 
 
 
-struct ramq_t *ramqNew(void *baseAddr, uint32_t len)
+struct  ramq_t *ramqNew(void *baseAddr, uint32_t len)
 {
+	SerialPrintln("Allocating Space");
 	struct ramq_t *me = malloc(sizeof(struct ramq_t));
+	SerialPrintln("Allocation done");
 	if(me != NULL)
 	{
 		me -> _baseAddr = baseAddr;
@@ -99,12 +101,12 @@ bool  ramqPush(struct ramq_t *me, void *dataPtr, uint16_t len)
 		
 		uint8_t *dataPtrHead = me -> _head.ptr + sizeof(struct qObj_t);
 
-		SerialPrint("[RingQ_PUSH] Write address: ");
-		SerialPrintU32(me -> _head.ptr);
-		SerialPrint(" Data address: ");
-		SerialPrintU32(dataPtrHead);
-		SerialPrint(" Next Head address: ");
-		SerialPrintlnU32(me -> _head.nextPtr);
+		// SerialPrint("[RingQ_PUSH] Write address: ");
+		// SerialPrintU32(me -> _head.ptr);
+		// SerialPrint(" Data address: ");
+		// SerialPrintU32(dataPtrHead);
+		// SerialPrint(" Next Head address: ");
+		// SerialPrintlnU32(me -> _head.nextPtr);
 
 		memcpy(dataPtrHead,dataPtr,me -> _head.len);
 
@@ -135,10 +137,10 @@ struct qObj_t *ramqPop(struct ramq_t *me)
 		struct qObj_t *currentTailObj= (struct qObj_t *)(me -> _tail.ptr);
 		uint8_t *nextTailPtr = me -> _tail.nextPtr;
 
-		SerialPrint("[RingQ_POP] Read address: ");
-		SerialPrintU32(me -> _tail.ptr);
-		SerialPrint(" Next Tail address: ");
-		SerialPrintlnU32(me -> _tail.nextPtr);
+		// SerialPrint("[RingQ_POP] Read address: ");
+		// SerialPrintU32(me -> _tail.ptr);
+		// SerialPrint(" Next Tail address: ");
+		// SerialPrintlnU32(me -> _tail.nextPtr);
 
 		// memcpy(&(me -> _tail), me -> _tail.nextPtr, sizeof(struct qObj_t));	
 
@@ -178,15 +180,17 @@ struct qObj_t *ramqPop(struct ramq_t *me)
 	}
 	else if(me -> _qState == NO_DATA)
 	{
-		SerialPrintln("[RingQ_POP] NO_DATA available to read.");
+		// SerialPrintln("[RingQ_POP] NO_DATA available to read.");
 	}
 	else if(me -> _qState == RESET)
 	{
-		SerialPrintln("[RingQ_POP] RESET conditions.");
+		// SerialPrintln("[RingQ_POP] RESET conditions.");
 	}
 
-	return NULL;
+	return 0;
 }
+
+
 
 void ramqReset(struct ramq_t *me)
 {
