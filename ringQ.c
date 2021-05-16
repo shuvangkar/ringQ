@@ -6,19 +6,19 @@
 
 struct  ramq_t *ramqNew(void *baseAddr, uint32_t len)
 {
-	SerialPrintln("Allocating Space");
+	// SerialPrintln("Allocating Space");
 	struct ramq_t *me = malloc(sizeof(struct ramq_t));
-	SerialPrintln("Allocation done");
+	// SerialPrintln("Allocation done");
 	if(me != NULL)
 	{
 		me -> _baseAddr = baseAddr;
 		me -> _len = len;
 		me -> _endAddr = (uint8_t*)baseAddr + len;
 
-		SerialPrint("[RingQ] Starting address: ");
-		SerialPrintlnU32(me -> _baseAddr);
-		SerialPrint("[RingQ] Ending address: ");
-		SerialPrintlnU32(me -> _endAddr);
+		// SerialPrint("[RingQ] Starting address: ");
+		// SerialPrintlnU32(me -> _baseAddr);
+		// SerialPrint("[RingQ] Ending address: ");
+		// SerialPrintlnU32(me -> _endAddr);
 
 		ramqReset(me);
 	}
@@ -56,12 +56,12 @@ bool  ramqPush(struct ramq_t *me, void *dataPtr, uint16_t len)
 			{
 				//need to reset of cannot save data
 				me -> _isLock = true;
-				SerialPrintln("[RingQ_PUSH] is Lockedd");
+				// SerialPrintln("[RingQ_PUSH] is Lockedd");
 				return false;
 			}else if((nextHead == me -> _baseAddr) && ((nextHead+len) >= me -> _tail.nextPtr))
 			{
 				me -> _isLock = true;
-				SerialPrintln("[RingQ_PUSH] is Lockeddd");
+				// SerialPrintln("[RingQ_PUSH] is Lockeddd");
 				return false;
 			}
 
@@ -121,7 +121,7 @@ bool  ramqPush(struct ramq_t *me, void *dataPtr, uint16_t len)
 		return true;
 	}else
 	{
-		SerialPrintln("[RingQ_PUSH] is Locked");
+		// SerialPrintln("[RingQ_PUSH] is Locked");
 	}
 	return false;
 	
