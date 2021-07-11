@@ -2,8 +2,6 @@
 
 
 
-
-
 struct  ramq_t *ramqNew(void *baseAddr, uint32_t len)
 {
 	// SerialPrintln("Allocating Space");
