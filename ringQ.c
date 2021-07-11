@@ -190,6 +190,12 @@ struct qObj_t *ramqPop(struct ramq_t *me)
 	return 0;
 }
 
+uint32_t ramqNextPacketLen(struct ramq_t *ramq)
+{
+	struct qObj_t *currentTailObj = (struct qObj_t *)(ramq -> _tail.nextPtr);
+	return currentTailObj->len;
+}
+
 
 
 void ramqReset(struct ramq_t *me)

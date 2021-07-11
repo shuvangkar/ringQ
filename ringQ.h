@@ -3,7 +3,7 @@
 #define _RAMQ_PRO_H_
 
 #include <Arduino.h>
-#include "Serial.h"
+// #include "Serial.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -43,6 +43,7 @@ bool ramqPush(struct ramq_t *me, void *dataPtr, uint16_t len);
 struct qObj_t *ramqPop(struct ramq_t *me);
 void ramqReset(struct ramq_t *ramq);
 bool ramqIsLocked(struct ramq_t *ramq);
+uint32_t ramqNextPacketLen(struct ramq_t *ramq);
 
 
 #ifdef __cplusplus
