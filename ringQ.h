@@ -10,13 +10,21 @@ extern "C" {
 #endif
 
 
+#define SEND_TO_MQTT			1
+#define MQTT_RETRY				2
+#define DATA_RECEIVED			3
+
+
 //|....qObj_t.....|.........Data.............|
 
 struct qObj_t
 {
 	uint8_t *ptr; //point current data pointer 
 	uint8_t *nextPtr; //keep track of the next buffer pointer 
-	uint16_t len;  //data length of current pointer 
+	uint8_t mgsId;
+	uint8_t mgsState;
+	uint16_t len;  //data length of current pointer
+
 }__attribute__((packed));
 
 enum qState_t
