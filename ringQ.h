@@ -11,9 +11,8 @@ extern "C" {
 
 
 #define SEND_TO_MQTT			1
-#define MQTT_RETRY				2
+#define MQTT_SUCCESSFUL		2
 #define DATA_RECEIVED			3
-
 
 //|....qObj_t.....|.........Data.............|
 

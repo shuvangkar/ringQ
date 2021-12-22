@@ -128,7 +128,17 @@ bool  ramqPush(struct ramq_t *me, void *dataPtr, uint16_t len)
 
 bool ramqPushMid(struct ramq_t *me, void *dataPtr, uint8_t mgsId, uint16_t len)
 {
-
+	if(ramqPush(me,dataPtr,len))
+	{
+		me -> _head.mgsId = mgsId;
+		me -> _head.mgsState = DATA_RECEIVED;
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+	
 }
 
 
