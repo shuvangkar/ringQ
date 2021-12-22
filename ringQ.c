@@ -13,6 +13,7 @@ struct  ramq_t *ramqNew(void *baseAddr, uint32_t len)
 		me -> _len = len;
 		me -> _endAddr = (uint8_t*)baseAddr + len;
 
+		/********Serial only for arduino ***********/
 		// SerialPrint("[RingQ] Starting address: ");
 		// SerialPrintlnU32(me -> _baseAddr);
 		// SerialPrint("[RingQ] Ending address: ");
@@ -27,7 +28,7 @@ bool  ramqPush(struct ramq_t *me, void *dataPtr, uint16_t len)
 {
 	if(me -> _isLock == false)
 	{
-		len += sizeof( struct qObj_t);
+		len += sizeof(struct qObj_t);
 		uint8_t *nextHead;
 
 		
@@ -123,6 +124,11 @@ bool  ramqPush(struct ramq_t *me, void *dataPtr, uint16_t len)
 	}
 	return false;
 	
+}
+
+bool ramqPushMid(struct ramq_t *me, void *dataPtr, uint8_t mgsId, uint16_t len)
+{
+
 }
 
 
