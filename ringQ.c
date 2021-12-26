@@ -74,10 +74,8 @@ bool  ramqPush(struct ramq_t *me, void *dataPtr, uint16_t len)
 				{
 					memcpy(&(me -> _tail), me -> _tail.ptr, sizeof(struct qObj_t));
 					me -> _leadingHead = true;	
-				}
-				
-			}
-			
+				}				
+			}			
 		}
 
 		me -> _head.ptr = me -> _head.nextPtr;
@@ -140,6 +138,27 @@ bool ramqPushMid(struct ramq_t *me, void *dataPtr, uint8_t mgsId, uint16_t len)
 	}
 	
 }
+
+struct qObj_t *ramqNextTail(struct ramq_t *me)
+{
+	if(me -> _qState == RUNNING)
+	{
+		struct qObj_t currentTail;
+		memcpy((uint8_t *)&currentTail, me -> _tail.nextPtr, sizeof(struct qObj_t));
+		return (struct qObj_t *)(currentTail.ptr);
+	}
+	// else if(me -> _qState == NO_DATA)
+	// {
+	// 	// SerialPrintln("[RingQ_POP] NO_DATA available to read.");
+	// }
+	// else if(me -> _qState == RESET)
+	// {
+	// 	// SerialPrintln("[RingQ_POP] RESET conditions.");
+	// }
+
+	return 0;
+}
+
 
 
 struct qObj_t *ramqPop(struct ramq_t *me)

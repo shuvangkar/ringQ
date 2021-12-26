@@ -47,6 +47,7 @@ struct ramq_t
 struct ramq_t *ramqNew(void *baseAddr, uint32_t len);
 bool ramqPush(struct ramq_t *me, void *dataPtr, uint16_t len);
 bool ramqPushMid(struct ramq_t *me, void *dataPtr, uint8_t mgsId, uint16_t len);
+struct qObj_t *ramqNextTail(struct ramq_t *me);
 struct qObj_t *ramqPop(struct ramq_t *me);
 void ramqReset(struct ramq_t *ramq);
 bool ramqIsLocked(struct ramq_t *ramq);
